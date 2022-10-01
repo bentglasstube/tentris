@@ -28,6 +28,8 @@ cc_library(
     deps = [
         "@libgam//:backdrop",
         "@libgam//:screen",
+        "@libgam//:sprite",
+        "@libgam//:spritemap",
         "@libgam//:text",
         "@libgam//:util",
         ":piece",

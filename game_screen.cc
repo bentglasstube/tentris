@@ -6,8 +6,10 @@
 GameScreen::GameScreen() :
   background_("background.png"),
   blocks_("blocks.png", 19, 8, 8),
+  digits_("digits.png", 10, 12, 21),
+  laser_("scanner.png", 0, 0, 80, 4),
   rng_(Util::random_seed()),
-  level_(1)
+  level_(1), scan_timer_(10000), scanner_(-1)
 {
   board_.fill(0);
   fill_bag();
@@ -44,6 +46,34 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
     }
   }
 
+  scan_timer_ -= elapsed;
+  if (scan_timer_ < 0) {
+    scan_timer_ += 10000;
+    scanner_ = 161;
+    scanner_drop_timer_ = 0;
+    scanner_line_found_ = false;
+  }
+
+  if (scanner_ >= 0) {
+    scanner_drop_timer_ -= 20 * elapsed;
+    while (scanner_drop_timer_ < 0) {
+      scanner_drop_timer_ += drop_time();
+      --scanner_;
+
+      if (scanner_ % 8 == 0) scanner_line_found_ = check_line(scanner_ / 8) || scanner_line_found_;
+    }
+
+    if (scanner_ == 0) {
+      // If the scanner got to the bottom and no lines were found, you lose
+      if (!scanner_line_found_) return false;
+
+      // Clear any found lines
+      for (int y = 0; y < 20; ++y) {
+        if (board_[y * 10] == 2) drop_lines(y);
+      }
+    }
+  }
+
   return true;
 }
 
@@ -73,6 +103,14 @@ void GameScreen::draw(Graphics& graphics) const {
       }
     }
   }
+
+  const int timer = std::ceil(scan_timer_ / 1000.f);
+  if (timer > 9) digits_.draw(graphics, 1, 178, 158);
+  digits_.draw(graphics, timer % 10, 195, 158);
+
+  if (scanner_ >= 0) {
+    laser_.draw(graphics, 40, 196 - scanner_);
+  }
 }
 
 bool GameScreen::overlap(const PieceData& piece) const {
@@ -84,12 +122,12 @@ bool GameScreen::overlap(const PieceData& piece) const {
   return false;
 }
 
-bool GameScreen::filled(int x, int y) const {
-  if (x < 0 || x > 9) return true;
-  if (y < 0) return true;
-  if (y > 21) return false;
+int GameScreen::value(int x, int y) const {
+  if (x < 0 || x > 9) return 1;
+  if (y < 0) return 1;
+  if (y > 21) return 0;
 
-  return board_[y * 10 + x] > 0;
+  return board_[y * 10 + x];
 }
 
 void GameScreen::fill(int x, int y, int value) {
@@ -287,4 +325,24 @@ bool GameScreen::rotate_right() {
 int GameScreen::drop_time() const {
   const float time = std::pow(0.8 - ((level_ - 1) * 0.007), level_ - 1);
   return std::max(kMinDropTime, std::round(1000.f * time));
+}
+
+bool GameScreen::check_line(int line) {
+  for (int x = 0; x < 10; ++x) {
+    if (!filled(x, line)) return false;
+  }
+
+  for (int x = 0; x < 10; ++x) {
+    fill(x, line, 2);
+  }
+
+  return true;
+}
+
+void GameScreen::drop_lines(int y) {
+  for (int iy = y; iy < 22; ++iy) {
+    for (int ix = 0; ix < 10; ++ix) {
+      fill(ix, iy, value(ix, iy + 1));
+    }
+  }
 }
