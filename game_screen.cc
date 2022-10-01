@@ -21,7 +21,9 @@ GameScreen::GameScreen() :
 
 bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
   if (input.key_pressed(Input::Button::A)) rotate_left();
+  if (input.key_pressed(Input::Button::X)) rotate_left();
   if (input.key_pressed(Input::Button::B)) rotate_right();
+  if (input.key_pressed(Input::Button::Y)) rotate_right();
 
   if (input.key_pressed(Input::Button::Left)) test_move(-1, 0);
   if (input.key_pressed(Input::Button::Right)) test_move(1, 0);
