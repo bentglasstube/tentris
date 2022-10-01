@@ -1,0 +1,9 @@
+[Desktop Entry]
+
+Type=Application
+Version=1.0
+Name=tentris
+Terminal=false
+Icon=icon
+Exec=tentris
+Categories=Game;
