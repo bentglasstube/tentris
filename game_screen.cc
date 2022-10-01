@@ -8,8 +8,11 @@ GameScreen::GameScreen() :
   blocks_("blocks.png", 19, 8, 8),
   digits_("digits.png", 10, 12, 21),
   laser_("scanner.png", 0, 0, 80, 4),
+  top_("top.png", 0, 0, 96, 16),
+  text_("text.png"),
   rng_(Util::random_seed()),
-  level_(1), scan_timer_(10000), scanner_(-1)
+  lines_(0),level_(1),
+  scan_timer_(10000), scanner_(-1)
 {
   board_.fill(0);
   fill_bag();
@@ -68,9 +71,17 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
       if (!scanner_line_found_) return false;
 
       // Clear any found lines
+      int lines = 0;
       for (int y = 0; y < 20; ++y) {
-        if (board_[y * 10] == 2) drop_lines(y);
+        if (board_[y * 10] == 2) {
+          ++lines;
+          drop_lines(y);
+        }
       }
+      lines_ += lines;
+      level_ = (lines_ / 10) + 1;
+
+      // TODO score lines
     }
   }
 
@@ -84,15 +95,15 @@ void GameScreen::draw(Graphics& graphics) const {
   const Piece next = bag_.back();
   switch (next.shape()) {
     case Piece::Shape::I:
-      next.draw(graphics, 176, 76);
+      next.draw(graphics, 176, 60);
       break;
 
     case Piece::Shape::O:
-      next.draw(graphics, 176, 80);
+      next.draw(graphics, 176, 64);
       break;
 
     default:
-      next.draw(graphics, 180, 80);
+      next.draw(graphics, 180, 64);
       break;
   }
 
@@ -104,13 +115,20 @@ void GameScreen::draw(Graphics& graphics) const {
     }
   }
 
-  const int timer = std::ceil(scan_timer_ / 1000.f);
-  if (timer > 9) digits_.draw(graphics, 1, 178, 158);
-  digits_.draw(graphics, timer % 10, 195, 158);
-
   if (scanner_ >= 0) {
     laser_.draw(graphics, 40, 196 - scanner_);
   }
+
+  text_.draw(graphics, "NEXT", 176, 32);
+  text_.draw(graphics, "TIMER", 160, 112);
+  text_.draw(graphics, "LINES", 160, 128);
+  text_.draw(graphics, "LEVEL", 160, 144);
+  text_.draw(graphics, "SCORE", 160, 176);
+
+  const int timer = std::ceil(scan_timer_ / 1000.f);
+  text_.draw(graphics, std::to_string(timer), 224, 112, Text::Alignment::Right);
+  text_.draw(graphics, std::to_string(lines_), 224, 128, Text::Alignment::Right);
+  text_.draw(graphics, std::to_string(level_), 224, 144, Text::Alignment::Right);
 }
 
 bool GameScreen::overlap(const PieceData& piece) const {

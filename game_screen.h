@@ -8,6 +8,7 @@
 #include "screen.h"
 #include "sprite.h"
 #include "spritemap.h"
+#include "text.h"
 
 #include "piece.h"
 
@@ -28,14 +29,17 @@ class GameScreen : public Screen {
       int x = 3, y = 22;
       Piece piece = Piece::Shape::S;
     };
+    static constexpr int kScanTime = 1000;
 
     Backdrop background_;
     SpriteMap blocks_, digits_;
-    Sprite laser_;
+    Sprite laser_, top_;
+    Text text_;
+
     PieceData current_;
     std::mt19937 rng_;
     std::array<int, 220> board_;
-    int level_;
+    int lines_, level_;
     int scan_timer_, scanner_, scanner_drop_timer_;
     bool scanner_line_found_;
 
