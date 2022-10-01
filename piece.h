@@ -20,6 +20,7 @@ class Piece {
     Shape shape() const { return shape_; }
     bool block(int x, int y) const;
     int color() const;
+    int rotation() const { return rotation_; }
 
   private:
 

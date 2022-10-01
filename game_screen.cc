@@ -14,31 +14,13 @@ GameScreen::GameScreen() :
 }
 
 bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
-  if (input.key_pressed(Input::Button::A)) {
-    current_.piece.rotate_left();
-    if (overlap(current_)) current_.piece.rotate_right();
-  }
+  if (input.key_pressed(Input::Button::A)) rotate_left();
+  if (input.key_pressed(Input::Button::B)) rotate_right();
 
-  if (input.key_pressed(Input::Button::B)) {
-    current_.piece.rotate_right();
-    if (overlap(current_)) current_.piece.rotate_left();
-  }
+  if (input.key_pressed(Input::Button::Left)) test_move(-1, 0);
+  if (input.key_pressed(Input::Button::Right)) test_move(1, 0);
 
-  if (input.key_pressed(Input::Button::Left)) {
-    --current_.x;
-    if (overlap(current_)) ++current_.x;
-  }
-
-  if (input.key_pressed(Input::Button::Right)) {
-    ++current_.x;
-    if (overlap(current_)) --current_.x;
-  }
-
-  if (input.key_held(Input::Button::Down)) {
-    current_.drop -= elapsed * 20;
-  } else {
-    current_.drop -= elapsed;
-  }
+  current_.drop -= elapsed * (input.key_held(Input::Button::Down) ? 20 : 1);
 
   if (input.key_pressed(Input::Button::Up)) {
     while (!overlap(current_)) {
@@ -50,17 +32,14 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
   }
 
   while (current_.drop < 0) {
-    --current_.y;
-    current_.drop += kDropTime;
-
-    if (overlap(current_)) {
-      ++current_.y;
+    if (test_move(0, -1)) {
+      current_.drop += kDropTime;
+    } else {
       lock_piece();
       spawn_piece();
 
-      if (overlap(current_)) {
-        return false;
-      }
+      // if a freshly spawned piece overlaps the board, you lose
+      if (overlap(current_)) return false;
     }
   }
 
@@ -142,4 +121,164 @@ void GameScreen::lock_piece() {
       }
     }
   }
+}
+
+bool GameScreen::test_move(int x, int y) {
+  current_.x += x;
+  current_.y += y;
+  if (overlap(current_)) {
+    current_.x -= x;
+    current_.y -= y;
+    return false;
+  }
+  return true;
+}
+
+bool GameScreen::rotate_left() {
+  if (current_.piece.shape() == Piece::Shape::O) return true;
+
+  current_.piece.rotate_left();
+  if (test_move(0, 0)) return true;
+
+  if (current_.piece.shape() == Piece::Shape::I) {
+    switch (current_.piece.rotation()) {
+      case 0: // R > 0
+        if (test_move(+2,  0)) return true;
+        if (test_move(-1,  0)) return true;
+        if (test_move(+2, +1)) return true;
+        if (test_move(-1, -2)) return true;
+        break;
+
+      case 1: // 2 > R
+        if (test_move(+1,  0)) return true;
+        if (test_move(-2,  0)) return true;
+        if (test_move(+1, -2)) return true;
+        if (test_move(-2, +1)) return true;
+        break;
+
+      case 2: // L > 2
+        if (test_move(-2,  0)) return true;
+        if (test_move(+1,  0)) return true;
+        if (test_move(-2, -1)) return true;
+        if (test_move(+1, +2)) return true;
+        break;
+
+      case 3: // 0 > L
+        if (test_move(-1,  0)) return true;
+        if (test_move(+2,  0)) return true;
+        if (test_move(-1, +2)) return true;
+        if (test_move(+2, -1)) return true;
+        break;
+    }
+
+  } else {  // Pieces J, L, S, T, and Z
+
+    switch (current_.piece.rotation()) {
+      case 0: // R > 0
+        if (test_move(+1,  0)) return true;
+        if (test_move(+1, -1)) return true;
+        if (test_move( 0, +2)) return true;
+        if (test_move(+1, +2)) return true;
+        break;
+
+      case 1: // 2 > R
+        if (test_move(-1,  0)) return true;
+        if (test_move(-1, +1)) return true;
+        if (test_move( 0, -2)) return true;
+        if (test_move(-1, -2)) return true;
+        break;
+
+      case 2: // L > 2
+        if (test_move(-1,  0)) return true;
+        if (test_move(-1, -1)) return true;
+        if (test_move( 0, +2)) return true;
+        if (test_move(-1, +2)) return true;
+        break;
+
+      case 3: // 0 > L
+        if (test_move(+1,  0)) return true;
+        if (test_move(+1, +1)) return true;
+        if (test_move( 0, -2)) return true;
+        if (test_move(+1, -2)) return true;
+        break;
+    }
+  }
+
+  current_.piece.rotate_right();
+  return false;
+}
+
+bool GameScreen::rotate_right() {
+  if (current_.piece.shape() == Piece::Shape::O) return true;
+
+  current_.piece.rotate_right();
+  if (test_move(0, 0)) return true;
+
+  if (current_.piece.shape() == Piece::Shape::I) {
+
+    switch (current_.piece.rotation()) {
+      case 0: // L > 0
+        if (test_move(+1,  0)) return true;
+        if (test_move(-2,  0)) return true;
+        if (test_move(+1, -2)) return true;
+        if (test_move(-2, +1)) return true;
+        break;
+
+      case 1: // 0 > R
+        if (test_move(-2,  0)) return true;
+        if (test_move(+1,  0)) return true;
+        if (test_move(-2, -1)) return true;
+        if (test_move(+1, +2)) return true;
+        break;
+
+      case 2: // R > 2
+        if (test_move(-1,  0)) return true;
+        if (test_move(+2,  0)) return true;
+        if (test_move(-1, +2)) return true;
+        if (test_move(+2, -1)) return true;
+        break;
+
+      case 3: // 2 > L
+        if (test_move(+2,  0)) return true;
+        if (test_move(-1,  0)) return true;
+        if (test_move(+2, +1)) return true;
+        if (test_move(-1, -2)) return true;
+        break;
+    }
+
+  } else {  // Pieces J, L, S, T, and Z
+
+    switch (current_.piece.rotation()) {
+      case 0: // L > 0
+        if (test_move(-1,  0)) return true;
+        if (test_move(-1, -1)) return true;
+        if (test_move( 0, +2)) return true;
+        if (test_move(-1, +2)) return true;
+        break;
+
+      case 1: // 0 > R
+        if (test_move(-1,  0)) return true;
+        if (test_move(-1, +1)) return true;
+        if (test_move( 0, -2)) return true;
+        if (test_move(-1, -2)) return true;
+        break;
+
+      case 2: // R > 2
+        if (test_move(+1,  0)) return true;
+        if (test_move(+1, -1)) return true;
+        if (test_move( 0, +2)) return true;
+        if (test_move(+1, +2)) return true;
+        break;
+
+      case 3: // 2 > L
+        if (test_move(+1,  0)) return true;
+        if (test_move(+1, +1)) return true;
+        if (test_move( 0, -2)) return true;
+        if (test_move(+1, -2)) return true;
+        break;
+    }
+  }
+
+  current_.piece.rotate_left();
+  return false;
 }

@@ -42,4 +42,8 @@ class GameScreen : public Screen {
     void spawn_piece();
     void fill_bag();
     void lock_piece();
+
+    bool rotate_left();
+    bool rotate_right();
+    bool test_move(int x, int y);
 };
