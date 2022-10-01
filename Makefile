@@ -4,9 +4,9 @@ ifeq ($(UNAME), Windows)
 endif
 
 NAME=tentris
-GAMDEPS=audio game grapihcs input screen text
+GAMDEPS=audio backdrop game graphics input screen sprite spritemap text util
 
-SOURCES=$(wildcard *.cc) $(patsubst %,game/%.cc,$(GAMDEPS))
+SOURCES=$(wildcard *.cc) $(patsubst %,gam/%.cc,$(GAMDEPS))
 RENDERS=$(patsubts resources/%.ase,content/%.png,$(wildcard resources/*.ase))
 CONTENT=$(wildcard content/*) $(RENDERS)
 ICONS=icon.png

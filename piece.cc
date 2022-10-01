@@ -17,6 +17,7 @@ uint16_t Piece::bits() const {
       if (rotation_ == 1) return 0b0010001000100010;
       if (rotation_ == 2) return 0b0000000011110000;
       if (rotation_ == 3) return 0b0100010001000100;
+      return 0;
 
     case Shape::O:
       return 0b0110011000000000;
@@ -26,30 +27,35 @@ uint16_t Piece::bits() const {
       if (rotation_ == 1) return 0b0100011001000000;
       if (rotation_ == 2) return 0b0000111001000000;
       if (rotation_ == 3) return 0b0100110001000000;
+      return 0;
 
     case Shape::L:
       if (rotation_ == 0) return 0b0010111000000000;
       if (rotation_ == 1) return 0b0100010001100000;
       if (rotation_ == 2) return 0b0000111010000000;
       if (rotation_ == 3) return 0b1100010001000000;
+      return 0;
 
     case Shape::J:
       if (rotation_ == 0) return 0b1000111000000000;
       if (rotation_ == 1) return 0b0110010001000000;
       if (rotation_ == 2) return 0b0000111000100000;
       if (rotation_ == 3) return 0b0100010011000000;
+      return 0;
 
     case Shape::Z:
       if (rotation_ == 0) return 0b1100011000000000;
       if (rotation_ == 1) return 0b0010011001000000;
       if (rotation_ == 2) return 0b0000110001100000;
       if (rotation_ == 3) return 0b0100110010000000;
+      return 0;
 
     case Shape::S:
       if (rotation_ == 0) return 0b0110110000000000;
       if (rotation_ == 1) return 0b0100011000100000;
       if (rotation_ == 2) return 0b0000011011000000;
       if (rotation_ == 3) return 0b1000110001000000;
+      return 0;
   }
 
   return 0;
