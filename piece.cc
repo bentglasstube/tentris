@@ -1,10 +1,11 @@
 #include "piece.h"
 
 void Piece::draw(Graphics& graphics, int x, int y) const {
-  uint16_t b = bits();
-  for (int i = 0; i < 16; ++i) {
-    if ((b >> i) & 1) {
-      blocks_.draw(graphics, 0, x + (3 - (i % 4)) * 8, y + (3 - (i / 4)) * 8);
+  for (int iy = 0; iy < 4; ++iy) {
+    for (int ix = 0; ix < 4; ++ix) {
+      if (block(ix, iy)) {
+        blocks_.draw(graphics, color(), x + ix * 8, y + iy * 8);
+      }
     }
   }
 }
@@ -48,8 +49,28 @@ uint16_t Piece::bits() const {
       if (rotation_ == 0) return 0b0110110000000000;
       if (rotation_ == 1) return 0b0100011000100000;
       if (rotation_ == 2) return 0b0000011011000000;
-      if (rotation_ == 3) return 0b1000011000100000;
+      if (rotation_ == 3) return 0b1000110001000000;
   }
 
   return 0;
+}
+
+int Piece::color() const {
+  switch (shape_) {
+    case Shape::I: return 8;
+    case Shape::O: return 14;
+    case Shape::T: return 6;
+    case Shape::L: return 3;
+    case Shape::J: return 10;
+    case Shape::Z: return 4;
+    case Shape::S: return 11;
+    default: return 1;
+  }
+}
+
+bool Piece::block(int x, int y) const {
+  if (x < 0 || x > 3) return false;
+  if (y < 0 || y > 3) return false;
+
+  return (bits() >> (15 - 4 * y - x)) & 1;
 }

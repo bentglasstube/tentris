@@ -4,6 +4,8 @@
 
 #include "util.h"
 
+#include "game_screen.h"
+
 TitleScreen::TitleScreen() : background_("title.png"), text_("text.png"), rng_(Util::random_seed()) {}
 
 bool TitleScreen::update(const Input& input, Audio&, unsigned int elapsed) {
@@ -39,5 +41,5 @@ void TitleScreen::draw(Graphics& graphics) const {
 }
 
 Screen* TitleScreen::next_screen() const {
-  return nullptr;
+  return new GameScreen;
 }

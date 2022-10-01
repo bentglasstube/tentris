@@ -17,6 +17,10 @@ class Piece {
     void rotate_left() { rotation_ = (rotation_ + 3) % 4; }
     void rotate_right() { rotation_ = (rotation_ + 1) % 4; }
 
+    Shape shape() const { return shape_; }
+    bool block(int x, int y) const;
+    int color() const;
+
   private:
 
     SpriteMap blocks_;
