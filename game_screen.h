@@ -39,7 +39,7 @@ class GameScreen : public Screen {
     PieceData current_;
     std::mt19937 rng_;
     std::array<int, 220> board_;
-    int lines_, level_;
+    int lines_, level_, score_, soft_drop_;
     int scan_timer_, scanner_, scanner_drop_timer_;
     bool scanner_line_found_;
 

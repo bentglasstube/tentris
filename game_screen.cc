@@ -11,7 +11,7 @@ GameScreen::GameScreen() :
   top_("top.png", 0, 0, 96, 16),
   text_("text.png"),
   rng_(Util::random_seed()),
-  lines_(0),level_(1),
+  lines_(0),level_(1), score_(0),
   scan_timer_(10000), scanner_(-1)
 {
   board_.fill(0);
@@ -31,18 +31,25 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
   current_.drop -= elapsed * (input.key_held(Input::Button::Down) ? 20 : 1);
 
   if (input.key_pressed(Input::Button::Up)) {
+    int distance = 0;
     while (!overlap(current_)) {
       --current_.y;
+      ++distance;
     }
     ++current_.y;
     lock_piece();
     spawn_piece();
+
+    score_ += 2 * distance;
   }
 
   while (current_.drop < 0) {
     if (test_move(0, -1)) {
       current_.drop += drop_time();
+      if (input.key_held(Input::Button::Down)) ++soft_drop_;
     } else {
+      score_ += soft_drop_;
+
       lock_piece();
       spawn_piece();
 
@@ -56,7 +63,6 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
     scan_timer_ += 10000;
     scanner_ = 161;
     scanner_drop_timer_ = 0;
-    scanner_line_found_ = false;
   }
 
   if (scanner_ >= 0) {
@@ -64,26 +70,35 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
     while (scanner_drop_timer_ < 0) {
       scanner_drop_timer_ += drop_time();
       --scanner_;
-
-      if (scanner_ % 8 == 0) scanner_line_found_ = check_line(scanner_ / 8) || scanner_line_found_;
+      check_line(scanner_ / 8);
     }
 
     if (scanner_ == 0) {
-      // If the scanner got to the bottom and no lines were found, you lose
-      if (!scanner_line_found_) return false;
-
       // Clear any found lines
       int lines = 0;
-      for (int y = 0; y < 20; ++y) {
-        if (board_[y * 10] == 2) {
-          ++lines;
+      for (int y = 20; y >= 0; --y) {
+        if (value(0, y) == 2) {
+          std::cerr << "Full line on row " << y << std::endl;
           drop_lines(y);
+          ++lines;
         }
       }
+
+      // If no lines are found, you lose
+      if (lines == 0) {
+        std::cerr << "No lines found during scan, game over." << std::endl;
+        return false;
+      }
+
+      std::cerr << "Got " << lines << " lines." << std::endl;
+      std::cerr << "Score " << level_ << " * 100 * 2 ^ " << (lines - 1) << " = ";
+      std::cerr << level_ * 100 * std::pow(2, lines - 1) << std::endl;
+
+      score_ += level_ * 100 * std::pow(2, lines - 1);
       lines_ += lines;
       level_ = (lines_ / 10) + 1;
 
-      // TODO score lines
+      scanner_ = -1;
     }
   }
 
@@ -133,6 +148,7 @@ void GameScreen::draw(Graphics& graphics) const {
   text_.draw(graphics, std::to_string(timer), 224, 112, Text::Alignment::Right);
   text_.draw(graphics, std::to_string(lines_), 224, 128, Text::Alignment::Right);
   text_.draw(graphics, std::to_string(level_), 224, 144, Text::Alignment::Right);
+  text_.draw(graphics, std::to_string(score_), 224, 192, Text::Alignment::Right);
 }
 
 bool GameScreen::overlap(const PieceData& piece) const {
@@ -164,6 +180,7 @@ void GameScreen::spawn_piece() {
   current_ = { 0, 3, 21, bag_.back() };
   bag_.pop_back();
   if (bag_.empty()) fill_bag();
+  soft_drop_ = 0;
 }
 
 void GameScreen::fill_bag() {
