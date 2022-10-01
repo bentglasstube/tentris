@@ -19,7 +19,7 @@ class GameScreen : public Screen {
 
   private:
 
-    static constexpr int kDropTime = 64 * 1000 / 60;
+    static constexpr float kMinDropTime = 64.f;
 
     struct PieceData {
       int drop = 0;
@@ -32,6 +32,7 @@ class GameScreen : public Screen {
     PieceData current_;
     std::mt19937 rng_;
     std::array<int, 220> board_;
+    int level_;
 
     std::vector<Piece::Shape> bag_;
 
@@ -46,4 +47,6 @@ class GameScreen : public Screen {
     bool rotate_left();
     bool rotate_right();
     bool test_move(int x, int y);
+
+    int drop_time() const;
 };

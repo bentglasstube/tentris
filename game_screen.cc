@@ -6,7 +6,8 @@
 GameScreen::GameScreen() :
   background_("background.png"),
   blocks_("blocks.png", 19, 8, 8),
-  rng_(Util::random_seed())
+  rng_(Util::random_seed()),
+  level_(1)
 {
   board_.fill(0);
   fill_bag();
@@ -33,7 +34,7 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
 
   while (current_.drop < 0) {
     if (test_move(0, -1)) {
-      current_.drop += kDropTime;
+      current_.drop += drop_time();
     } else {
       lock_piece();
       spawn_piece();
@@ -281,4 +282,9 @@ bool GameScreen::rotate_right() {
 
   current_.piece.rotate_left();
   return false;
+}
+
+int GameScreen::drop_time() const {
+  const float time = std::pow(0.8 - ((level_ - 1) * 0.007), level_ - 1);
+  return std::max(kMinDropTime, std::round(1000.f * time));
 }
