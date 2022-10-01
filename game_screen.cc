@@ -121,6 +121,8 @@ void GameScreen::draw(Graphics& graphics) const {
     laser_.draw(graphics, 40, 196 - scanner_);
   }
 
+  top_.draw(graphics, 32, 24);
+
   text_.draw(graphics, "NEXT", 176, 32);
   text_.draw(graphics, "TIMER", 160, 112);
   text_.draw(graphics, "LINES", 160, 128);
