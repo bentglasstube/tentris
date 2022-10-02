@@ -114,6 +114,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         std::cerr << "Edged with " << time_left << "ms to go." << std::endl;
         audio.play_sample("edge.wav");
         score_ += level_ * 1000 / time_left;
+        floaters_.emplace_back(7, 58, 183 - scanner_);
       }
     }
 
@@ -144,14 +145,27 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         score_ += level_ * 100 * std::pow(2, lines - 1);
         lines_ += lines;
         level_ = (lines_ / 10) + 1;
+
+        floaters_.emplace_back(lines > 3 ? 3 : lines - 1, 58, 193);
       }
 
       if (board_empty()) {
         std::cerr << "Full clear bonus" << std::endl;
         score_ += level_ * 1000;
+        floaters_.emplace_back(6, 58, 193);
       }
     }
   }
+
+  for (auto& f : floaters_) {
+    f.update(elapsed);
+  }
+
+  floaters_.erase(
+      std::remove_if(
+        floaters_.begin(), floaters_.end(),
+        [](const auto& f) { return f.done(); }),
+      floaters_.end());
 
   return true;
 }
@@ -193,6 +207,10 @@ void GameScreen::draw(Graphics& graphics) const {
 
     if (state_ == State::GameOver) text_.draw(graphics, "GAME OVER", 80, 112, Text::Alignment::Center);
     top_.draw(graphics, 32, 24);
+
+    for (const auto& f : floaters_) {
+      f.draw(graphics);
+    }
   }
 
   text_.draw(graphics, "NEXT", 176, 32);
@@ -300,11 +318,13 @@ void GameScreen::lock_piece(Audio& audio) {
       std::cerr << "Full T-spin" << std::endl;
       audio.play_sample("fullspin.wav");
       score_ += 400 * level_;
+      floaters_.emplace_back(4, 30 + 8 * current_.x, 183 - 8 * current_.y);
     } else if (front == 1 && back == 2) {
       // mini t-spin
       std::cerr << "Mini T-spin" << std::endl;
       audio.play_sample("spin.wav");
       score_ += 100 * level_;
+      floaters_.emplace_back(5, 30 + 8 * current_.x, 183 - 8 * current_.y);
     }
   }
 

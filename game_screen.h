@@ -10,6 +10,7 @@
 #include "spritemap.h"
 #include "text.h"
 
+#include "floater.h"
 #include "piece.h"
 #include "title_screen.h"
 
@@ -42,6 +43,7 @@ class GameScreen : public Screen {
     SpriteMap blocks_, digits_;
     Sprite laser_, top_;
     Text text_;
+    std::vector<Floater> floaters_;
 
     State state_;
     PieceData current_;
