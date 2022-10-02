@@ -27,11 +27,15 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
   }
 
   if (state_ == State::Paused) {
-    if (input.key_pressed(Input::Button::Start)) state_ = State::Playing;
+    if (input.key_pressed(Input::Button::Start)) {
+      state_ = State::Playing;
+      audio.music_volume(10);
+    }
     return true;
   }
 
   if (input.key_pressed(Input::Button::Start)) {
+    audio.music_volume(2);
     state_ = State::Paused;
     return true;
   }
@@ -69,6 +73,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       if (overlap(current_)) {
         audio.play_sample("dead.wav");
         state_ = State::GameOver;
+        audio.stop_music();
         return true;
       }
     }
@@ -108,6 +113,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         std::cerr << "No lines found during scan, game over." << std::endl;
         audio.play_sample("dead.wav");
         state_ = State::GameOver;
+        audio.stop_music();
         return true;
       }
 
