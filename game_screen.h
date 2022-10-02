@@ -27,6 +27,8 @@ class GameScreen : public Screen {
   private:
 
     static constexpr float kMinDropTime = 64.f;
+    static constexpr int kAutoShiftDelay = 133;
+    static constexpr int kAutoShiftRepeat = 50;
 
     enum class State { Playing, Paused, GameOver };
 
@@ -35,7 +37,6 @@ class GameScreen : public Screen {
       int x = 3, y = 22;
       Piece piece = Piece::Shape::S;
     };
-    static constexpr int kScanTime = 1000;
 
     Backdrop background_;
     SpriteMap blocks_, digits_;
@@ -48,6 +49,7 @@ class GameScreen : public Screen {
     std::array<int, 220> board_;
     int lines_, level_, score_, soft_drop_;
     int scan_timer_, scanner_, scanner_drop_timer_;
+    int auto_shift_;
 
     std::vector<Piece::Shape> bag_;
 

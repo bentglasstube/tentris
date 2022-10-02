@@ -49,6 +49,22 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
   if (input.key_pressed(Input::Button::Left)) test_move(-1, 0);
   if (input.key_pressed(Input::Button::Right)) test_move(1, 0);
 
+  if (input.key_held(Input::Button::Left)) {
+    auto_shift_ += elapsed;
+    while (auto_shift_ > kAutoShiftDelay) {
+      test_move(-1, 0);
+      auto_shift_ -= kAutoShiftRepeat;
+    }
+  } else if (input.key_held(Input::Button::Right)) {
+    auto_shift_ += elapsed;
+    while (auto_shift_ > kAutoShiftDelay) {
+      test_move(1, 0);
+      auto_shift_ -= kAutoShiftRepeat;
+    }
+  } else {
+    auto_shift_ = 0;
+  }
+
   current_.drop -= elapsed * (input.key_held(Input::Button::Down) ? 20 : 1);
 
   if (input.key_pressed(Input::Button::Up)) {
