@@ -277,7 +277,7 @@ void GameScreen::fill(int x, int y, int value) {
 }
 
 void GameScreen::spawn_piece() {
-  current_ = { 0, 3, 21, bag_.back() };
+  current_ = { drop_time(), 3, 21, bag_.back() };
   bag_.pop_back();
   if (bag_.empty()) fill_bag();
   soft_drop_ = 0;
