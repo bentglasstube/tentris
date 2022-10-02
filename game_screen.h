@@ -50,12 +50,14 @@ class GameScreen : public Screen {
     int lines_, level_, score_, soft_drop_;
     int scan_timer_, scanner_, scanner_drop_timer_;
     int auto_shift_;
+    bool tspin_;
 
     std::vector<Piece::Shape> bag_;
 
     bool overlap(const PieceData& piece) const;
     int value(int x, int y) const;
     bool filled(int x, int y) const { return value(x, y) > 0; }
+    bool board_empty() const;
     void fill(int x, int y, int value);
 
     void spawn_piece();
