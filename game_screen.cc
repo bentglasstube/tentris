@@ -163,13 +163,10 @@ void GameScreen::draw(Graphics& graphics) const {
   }
 
   text_.draw(graphics, "NEXT", 176, 32);
-  text_.draw(graphics, "TIMER", 160, 112);
   text_.draw(graphics, "LINES", 160, 128);
   text_.draw(graphics, "LEVEL", 160, 144);
   text_.draw(graphics, "SCORE", 160, 176);
 
-  const int timer = std::ceil(scan_timer_ / 1000.f);
-  text_.draw(graphics, std::to_string(timer), 224, 112, Text::Alignment::Right);
   text_.draw(graphics, std::to_string(lines_), 224, 128, Text::Alignment::Right);
   text_.draw(graphics, std::to_string(level_), 224, 144, Text::Alignment::Right);
   text_.draw(graphics, std::to_string(score_), 224, 192, Text::Alignment::Right);
