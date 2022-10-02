@@ -26,7 +26,10 @@ GameScreen::GameScreen(Difficulty difficulty, Music music) :
 
 bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) {
   if (state_ == State::GameOver) {
-    if (input.key_pressed(Input::Button::Start)) return false;
+    if (input.key_pressed(Input::Button::Start)) {
+      audio.music_volume(10);
+      return false;
+    }
     return true;
   }
 
@@ -567,7 +570,7 @@ void GameScreen::add_points(int points) {
 
 void GameScreen::game_over(Audio& audio) {
   audio.play_sample("dead.wav");
-  audio.stop_music();
+  audio.music_volume(1);
   state_ = State::GameOver;
   stats_.set_score(score_);
   stats_.set_lines(lines_);
