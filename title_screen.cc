@@ -63,7 +63,7 @@ void TitleScreen::draw(Graphics& graphics) const {
 
 Screen* TitleScreen::next_screen() const {
   if (choice_ < 3) {
-    return new GameScreen(choice_ + 1);
+    return new GameScreen(static_cast<GameScreen::Difficulty>(choice_));
   } else {
     return new StatsScreen();
   }

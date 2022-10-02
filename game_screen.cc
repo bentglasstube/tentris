@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-GameScreen::GameScreen(int difficulty) :
+GameScreen::GameScreen(Difficulty difficulty) :
   background_("background.png"),
   blocks_("blocks.png", 19, 8, 8),
   digits_("digits.png", 10, 12, 21),
@@ -12,8 +12,8 @@ GameScreen::GameScreen(int difficulty) :
   text_("text.png"),
   state_(State::Playing),
   stats_("content/stats.txt"),
-  rng_(Util::random_seed()),
   difficulty_(difficulty),
+  rng_(Util::random_seed()),
   duration_(0),
   lines_(0), level_(1), score_(0),
   scan_timer_(10000), scanner_(-1)
@@ -79,8 +79,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
     }
     ++current_.y;
     lock_piece(audio);
-
-    score_ += 2 * distance;
+    add_points(2 * distance);
   }
 
   while (current_.drop < 0) {
@@ -92,13 +91,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       lock_piece(audio);
       // if a freshly spawned piece overlaps the board, you lose
       if (overlap(current_)) {
-        audio.play_sample("dead.wav");
-        audio.stop_music();
-        state_ = State::GameOver;
-        stats_.set_score(score_);
-        stats_.set_lines(lines_);
-        stats_.set_run_length(duration_);
-        stats_.save("content/stats.txt");
+        game_over(audio);
         return true;
       }
     }
@@ -122,7 +115,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         stats_.set_edge(time_left);
         std::cerr << "Edged with " << time_left << "ms to go." << std::endl;
         audio.play_sample("edge.wav");
-        score_ += level_ * 1000 / time_left;
+        add_points(level_ * 1000 / time_left);
         floaters_.emplace_back(7, 58, 183 - scanner_);
       }
     }
@@ -139,14 +132,31 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
       scanner_ = -1;
 
-      // If no lines are found, add a garbage line
+      // If no lines are found, there is a penalty
       if (lines == 0) {
-        audio.play_sample("warning.wav");
-        add_trash_line();
+        switch (difficulty_) {
+          case Difficulty::Rusty:
+            audio.play_sample("warning.wav");
+            while (!overlap(current_)) {
+              --current_.y;
+            }
+            ++current_.y;
+            lock_piece(audio);
+            break;
+
+          case Difficulty::Trusty:
+            audio.play_sample("warning.wav");
+            add_trash_line();
+            break;
+
+          case Difficulty::Lusty:
+            game_over(audio);
+            return true;
+        }
       } else {
         audio.play_sample(lines > 3 ? "bigclear.wav" : "clear.wav");
 
-        score_ += level_ * 100 * std::pow(2, lines - 1);
+        add_points(level_ * 100 * std::pow(2, lines - 1));
         lines_ += lines;
         level_ = (lines_ / 10) + 1;
 
@@ -156,7 +166,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
       if (board_empty()) {
         std::cerr << "Full clear bonus" << std::endl;
-        score_ += level_ * 1000;
+        add_points(level_ * 1000);
         floaters_.emplace_back(6, 58, 193);
       }
     }
@@ -315,19 +325,19 @@ void GameScreen::lock_piece(Audio& audio) {
       // full t-spin
       std::cerr << "Full T-spin" << std::endl;
       audio.play_sample("fullspin.wav");
-      score_ += 400 * level_;
+      add_points(400 * level_);
       floaters_.emplace_back(4, 30 + 8 * current_.x, 183 - 8 * current_.y);
     } else if (front == 1 && back == 2) {
       // mini t-spin
       std::cerr << "Mini T-spin" << std::endl;
       audio.play_sample("spin.wav");
-      score_ += 100 * level_;
+      add_points(100 * level_);
       floaters_.emplace_back(5, 30 + 8 * current_.x, 183 - 8 * current_.y);
     }
   }
 
   audio.play_sample("lock.wav");
-  score_ += soft_drop_;
+  add_points(soft_drop_);
   spawn_piece();
 }
 
@@ -542,4 +552,18 @@ void GameScreen::add_trash_line() {
   for (int i = 0; i < 5; ++i) {
     fill(fills[i], 0, 18);
   }
+}
+
+void GameScreen::add_points(int points) {
+  score_ += points * std::pow(2, static_cast<int>(difficulty_) - 1);
+}
+
+void GameScreen::game_over(Audio& audio) {
+  audio.play_sample("dead.wav");
+  audio.stop_music();
+  state_ = State::GameOver;
+  stats_.set_score(score_);
+  stats_.set_lines(lines_);
+  stats_.set_run_length(duration_);
+  stats_.save("content/stats.txt");
 }

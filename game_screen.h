@@ -18,7 +18,9 @@
 class GameScreen : public Screen {
   public:
 
-    GameScreen(int difficulty);
+    enum class Difficulty { Rusty, Trusty, Lusty };
+
+    GameScreen(Difficulty difficulty);
 
     bool update(const Input&, Audio&, unsigned int) override;
     void draw(Graphics& graphics) const override;
@@ -47,11 +49,11 @@ class GameScreen : public Screen {
 
     State state_;
     Stats stats_;
+    Difficulty difficulty_;
     PieceData current_;
     std::mt19937 rng_;
     std::array<int, 220> board_;
     std::vector<Floater> floaters_;
-    int difficulty_;
     uint64_t duration_;
     int lines_, level_, score_, soft_drop_;
     int scan_timer_, scanner_, scanner_drop_timer_;
@@ -80,4 +82,6 @@ class GameScreen : public Screen {
     void add_trash_line();
 
     int block_texture() const { return (level_ - 1) % 8; }
+    void add_points(int points);
+    void game_over(Audio& audio);
 };
