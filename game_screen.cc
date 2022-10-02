@@ -162,7 +162,7 @@ void GameScreen::draw(Graphics& graphics) const {
   if (state_ == State::Paused) {
     text_.draw(graphics, "PAUSED", 80, 112, Text::Alignment::Center);
   } else {
-    current_.piece.draw(graphics, 40 + 8 * current_.x, 192 - 8 * current_.y);
+    current_.piece.draw(graphics, 40 + 8 * current_.x, 193 - 8 * current_.y);
 
     const Piece next = bag_.back();
     switch (next.shape()) {
@@ -182,13 +182,13 @@ void GameScreen::draw(Graphics& graphics) const {
     for (int y = 0; y < 20; ++y) {
       for (int x = 0; x < 10; ++x) {
         if (filled(x, y)) {
-          blocks_.draw(graphics, board_[y * 10 + x], 40 + 8 * x, 192 - 8 * y);
+          blocks_.draw(graphics, board_[y * 10 + x], 40 + 8 * x, 193 - 8 * y);
         }
       }
     }
 
     if (scanner_ >= 0) {
-      laser_.draw(graphics, 40, 196 - scanner_);
+      laser_.draw(graphics, 40, 198 - scanner_);
     }
 
     if (state_ == State::GameOver) text_.draw(graphics, "GAME OVER", 80, 112, Text::Alignment::Center);
