@@ -128,13 +128,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       if (lines == 0) {
         std::cerr << "No lines found during scan, game over." << std::endl;
         audio.play_sample("warning.wav");
-        // add_trash_line();
-        while (!overlap(current_)) {
-          --current_.y;
-        }
-        ++current_.y;
-        lock_piece(audio);
-
+        add_trash_line();
       } else {
         audio.play_sample(lines > 3 ? "bigclear.wav" : "clear.wav");
         std::cerr << "Got " << lines << " lines." << std::endl;
@@ -440,4 +434,19 @@ void GameScreen::drop_lines(int y) {
 }
 
 void GameScreen::add_trash_line() {
+  for (int y = 19; y > 0; --y) {
+    for (int x = 0; x < 10; ++x) {
+      fill(x, y, value(x, y - 1));
+    }
+  }
+
+  for (int x = 0; x < 10; ++x) {
+    fill(x, 0, 0);
+  }
+
+  std::vector<int> fills = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  shuffle(fills.begin(), fills.end(), rng_);
+  for (int i = 0; i < 5; ++i) {
+    fill(fills[i], 0, 18);
+  }
 }
