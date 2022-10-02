@@ -69,17 +69,22 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
   }
 
   duration_ += elapsed;
-  current_.drop -= elapsed * (input.key_held(Input::Button::Down) ? 20 : 1);
+  current_.drop += elapsed;
 
   if (input.key_pressed(Input::Button::Up)) {
     const int dist = hard_drop(audio);
     add_points(2 * dist);
   }
 
-  while (current_.drop < 0) {
+  if (input.key_pressed(Input::Button::Down)) {
+    current_.drop = std::min(current_.drop, kSoftDropTime);
+  }
+
+  const int drop_target = input.key_held(Input::Button::Down) ? kSoftDropTime : drop_time();
+  while (current_.drop > drop_target) {
     if (test_move(0, -1)) {
       tspin_ = false;
-      current_.drop += drop_time();
+      current_.drop -= drop_target;
       if (input.key_held(Input::Button::Down)) ++soft_drop_;
     } else {
       lock_piece(audio);

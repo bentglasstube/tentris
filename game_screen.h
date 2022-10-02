@@ -34,6 +34,7 @@ class GameScreen : public Screen {
     static constexpr float kMinDropTime = 64.f;
     static constexpr int kAutoShiftDelay = 133;
     static constexpr int kAutoShiftRepeat = 50;
+    static constexpr int kSoftDropTime = 50;
 
     enum class State { Playing, Paused, GameOver };
 
