@@ -86,7 +86,12 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
     } else {
       lock_piece(audio);
       // if a freshly spawned piece overlaps the board, you lose
-      if (overlap(current_)) game_over(audio);
+      if (overlap(current_)) {
+        audio.play_sample("dead.wav");
+        audio.stop_music();
+        state_ = State::GameOver;
+        return true;
+      }
     }
   }
 
@@ -119,10 +124,17 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
       scanner_ = -1;
 
-      // If no lines are found, you lose
+      // If no lines are found, add a garbage line
       if (lines == 0) {
         std::cerr << "No lines found during scan, game over." << std::endl;
-        game_over(audio);
+        audio.play_sample("warning.wav");
+        // add_trash_line();
+        while (!overlap(current_)) {
+          --current_.y;
+        }
+        ++current_.y;
+        lock_piece(audio);
+
       } else {
         audio.play_sample(lines > 3 ? "bigclear.wav" : "clear.wav");
         std::cerr << "Got " << lines << " lines." << std::endl;
@@ -427,8 +439,5 @@ void GameScreen::drop_lines(int y) {
   }
 }
 
-void GameScreen::game_over(Audio& audio) {
-  audio.play_sample("dead.wav");
-  audio.stop_music();
-  state_ = State::GameOver;
+void GameScreen::add_trash_line() {
 }

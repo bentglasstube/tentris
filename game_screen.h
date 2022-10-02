@@ -69,6 +69,5 @@ class GameScreen : public Screen {
     int drop_time() const;
     bool check_line(int line);
     void drop_lines(int y);
-
-    void game_over(Audio& audio);
+    void add_trash_line();
 };
