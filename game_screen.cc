@@ -539,11 +539,15 @@ void GameScreen::add_trash_line() {
     fill(x, 0, 0);
   }
 
+  const int garbage_count = std::max(5, 9 - level_ / 2);
+
   std::vector<int> fills = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   shuffle(fills.begin(), fills.end(), rng_);
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < garbage_count; ++i) {
     fill(fills[i], 0, 18);
   }
+
+  test_move(0, 1);
 }
 
 void GameScreen::add_points(int points) {
