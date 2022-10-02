@@ -26,6 +26,8 @@ class GameScreen : public Screen {
 
     static constexpr float kMinDropTime = 64.f;
 
+    enum class State { Playing, Paused, GameOver };
+
     struct PieceData {
       int drop = 0;
       int x = 3, y = 22;
@@ -38,6 +40,7 @@ class GameScreen : public Screen {
     Sprite laser_, top_;
     Text text_;
 
+    State state_;
     PieceData current_;
     std::mt19937 rng_;
     std::array<int, 220> board_;

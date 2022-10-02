@@ -20,6 +20,21 @@ GameScreen::GameScreen() :
 }
 
 bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) {
+
+  if (state_ == State::GameOver) {
+    if (input.key_pressed(Input::Button::Start)) return false;
+  }
+
+  if (state_ == State::Paused) {
+    if (input.key_pressed(Input::Button::Start)) state_ = State::Playing;
+    return true;
+  }
+
+  if (input.key_pressed(Input::Button::Start)) {
+    state_ = State::Paused;
+    return true;
+  }
+
   if (input.key_pressed(Input::Button::A)) rotate_left();
   if (input.key_pressed(Input::Button::X)) rotate_left();
   if (input.key_pressed(Input::Button::B)) rotate_right();
@@ -52,7 +67,8 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       // if a freshly spawned piece overlaps the board, you lose
       if (overlap(current_)) {
         audio.play_sample("dead.wav");
-        return false;
+        state_ = State::GameOver;
+        return true;
       }
     }
   }
@@ -88,7 +104,8 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       if (lines == 0) {
         std::cerr << "No lines found during scan, game over." << std::endl;
         audio.play_sample("dead.wav");
-        return false;
+        state_ = State::GameOver;
+        return true;
       }
 
       audio.play_sample("clear.wav");
