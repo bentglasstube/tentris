@@ -21,8 +21,8 @@ class GameScreen : public Screen {
     bool update(const Input&, Audio&, unsigned int) override;
     void draw(Graphics& graphics) const override;
 
-    std::string get_music_track() const { return "theme_a.ogg"; }
-    Screen* next_screen() const { return new TitleScreen; }
+    std::string get_music_track() const override { return "theme_a.ogg"; }
+    Screen* next_screen() const override { return new TitleScreen; }
 
   private:
 
