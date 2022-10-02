@@ -21,6 +21,10 @@ GameScreen::GameScreen(Difficulty difficulty) :
   board_.fill(0);
   fill_bag();
   spawn_piece();
+
+  for (int x = 2; x < 10; ++x) fill(x, 0, 18);
+  fill(0, 0, 18);
+  fill(2, 2, 18);
 }
 
 bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) {
@@ -72,10 +76,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
   if (input.key_pressed(Input::Button::Up)) {
     const int dist = hard_drop(audio);
-    if (dist > 0) {
-      tspin_ = false;
-      add_points(2 * dist);
-    }
+    add_points(2 * dist);
   }
 
   while (current_.drop < 0) {
@@ -313,17 +314,15 @@ void GameScreen::lock_piece(Audio& audio) {
         break;
     }
 
-    if (front == 2 && back > 0) {
-      // full t-spin
-      std::cerr << "Full T-spin" << std::endl;
-      audio.play_sample("fullspin.wav");
-      add_points(400 * level_);
-      floaters_.emplace_back(4, 30 + 8 * current_.x, 183 - 8 * current_.y);
-    } else if (front == 1 && back == 2) {
-      // mini t-spin
+    if (front == 1 && back == 2) {
       std::cerr << "Mini T-spin" << std::endl;
       audio.play_sample("spin.wav");
       add_points(100 * level_);
+      floaters_.emplace_back(4, 30 + 8 * current_.x, 183 - 8 * current_.y);
+    } else if (front == 2 && back > 0) {
+      std::cerr << "Full T-spin" << std::endl;
+      audio.play_sample("fullspin.wav");
+      add_points(400 * level_);
       floaters_.emplace_back(5, 30 + 8 * current_.x, 183 - 8 * current_.y);
     }
   }
@@ -571,6 +570,7 @@ int GameScreen::hard_drop(Audio& audio) {
     ++distance;
   }
   ++current_.y;
+  if (distance > 0) tspin_ = false;
   lock_piece(audio);
   return distance;
 }
