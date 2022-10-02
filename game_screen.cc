@@ -80,15 +80,30 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
   }
 
   if (input.key_pressed(Input::Button::Down)) {
+    std::cerr << "Soft dropping" << std::endl;
+    dropping_ = true;
     current_.drop = std::min(current_.drop, kSoftDropTime);
   }
 
-  const int drop_target = input.key_held(Input::Button::Down) ? kSoftDropTime : drop_time();
-  while (current_.drop > drop_target) {
+  if (input.key_released(Input::Button::Down)) {
+    std::cerr << "Button released, stop dropping." << std::endl;
+    dropping_ = false;
+  }
+
+  const int drop_target = dropping_ ? kSoftDropTime : drop_time();
+  if (current_.drop > drop_target) {
     if (test_move(0, -1)) {
       tspin_ = false;
       current_.drop -= drop_target;
-      if (input.key_held(Input::Button::Down)) ++soft_drop_;
+      if (dropping_) {
+        ++soft_drop_;
+        if (test_move(0, -1)) {
+          test_move(0, 1);
+        } else {
+          std::cerr << "Block hit stack, stop dropping." << std::endl;
+          dropping_ = false;
+        }
+      }
     } else {
       lock_piece(audio);
       // if a freshly spawned piece overlaps the board, you lose
@@ -284,6 +299,8 @@ void GameScreen::spawn_piece() {
   bag_.pop_back();
   if (bag_.empty()) fill_bag();
   soft_drop_ = 0;
+  std::cerr << "New piece, stop dropping." << std::endl;
+  dropping_ = false;
 }
 
 void GameScreen::fill_bag() {
