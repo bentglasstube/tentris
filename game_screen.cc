@@ -557,7 +557,7 @@ void GameScreen::add_trash_line() {
     fill(fills[i], 0, 18);
   }
 
-  test_move(0, 1);
+  if (overlap(current_)) test_move(0, 1);
 }
 
 void GameScreen::add_points(int points) {
