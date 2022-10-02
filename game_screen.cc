@@ -119,7 +119,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       }
     }
 
-    if (scanner_ == 0) {
+    if (scanner_ <= 0) {
       // Clear any found lines
       int lines = 0;
       for (int y = 20; y >= 0; --y) {
