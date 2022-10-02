@@ -109,7 +109,12 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
     while (scanner_drop_timer_ < 0) {
       scanner_drop_timer_ += drop_time();
       --scanner_;
-      check_line(scanner_ / 8);
+      if (check_line(scanner_ / 8) && scanner_ % 8 < 7) {
+        const int time_left = (scanner_drop_timer_ + drop_time() * (scanner_ % 8)) / 20;
+        std::cerr << "Edged with " << time_left << "ms to go." << std::endl;
+        audio.play_sample("edge.wav");
+        score_ += level_ * 1000 / time_left;
+      }
     }
 
     if (scanner_ == 0) {
@@ -482,6 +487,8 @@ int GameScreen::drop_time() const {
 }
 
 bool GameScreen::check_line(int line) {
+  if (value(0, line) == 2) return false;
+
   for (int x = 0; x < 10; ++x) {
     if (!filled(x, line)) return false;
   }
