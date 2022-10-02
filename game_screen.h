@@ -57,6 +57,7 @@ class GameScreen : public Screen {
     bool overlap(const PieceData& piece) const;
     int value(int x, int y) const;
     bool filled(int x, int y) const { return value(x, y) > 0; }
+    bool board_empty() const;
     void fill(int x, int y, int value);
 
     void spawn_piece();

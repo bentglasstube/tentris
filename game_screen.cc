@@ -134,6 +134,11 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         lines_ += lines;
         level_ = (lines_ / 10) + 1;
       }
+
+      if (board_empty()) {
+        std::cerr << "Full clear bonus" << std::endl;
+        score_ += level_ * 1000;
+      }
     }
   }
 
@@ -204,6 +209,15 @@ int GameScreen::value(int x, int y) const {
   if (y > 21) return 0;
 
   return board_[y * 10 + x];
+}
+
+bool GameScreen::board_empty() const {
+  for (int y = 0; y < 22; ++y) {
+    for (int x = 0; x < 10; ++x) {
+      if (filled(x, y)) return false;
+    }
+  }
+  return true;
 }
 
 void GameScreen::fill(int x, int y, int value) {
