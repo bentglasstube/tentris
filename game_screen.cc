@@ -176,27 +176,27 @@ void GameScreen::draw(Graphics& graphics) const {
   if (state_ == State::Paused) {
     text_.draw(graphics, "PAUSED", 80, 112, Text::Alignment::Center);
   } else {
-    current_.piece.draw(graphics, 40 + 8 * current_.x, 193 - 8 * current_.y);
+    current_.piece.draw(graphics, 40 + 8 * current_.x, 193 - 8 * current_.y, block_texture());
 
     const Piece next = bag_.back();
     switch (next.shape()) {
       case Piece::Shape::I:
-        next.draw(graphics, 176, 60);
+        next.draw(graphics, 176, 60, block_texture());
         break;
 
       case Piece::Shape::O:
-        next.draw(graphics, 176, 64);
+        next.draw(graphics, 176, 64, block_texture());
         break;
 
       default:
-        next.draw(graphics, 180, 64);
+        next.draw(graphics, 180, 64, block_texture());
         break;
     }
 
     for (int y = 0; y < 20; ++y) {
       for (int x = 0; x < 10; ++x) {
         if (filled(x, y)) {
-          blocks_.draw(graphics, board_[y * 10 + x], 40 + 8 * x, 193 - 8 * y);
+          blocks_.draw(graphics, board_[y * 10 + x] + 19 * block_texture(), 40 + 8 * x, 193 - 8 * y);
         }
       }
     }

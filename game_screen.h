@@ -74,4 +74,6 @@ class GameScreen : public Screen {
     bool check_line(int line);
     void drop_lines(int y);
     void add_trash_line();
+
+    int block_texture() const { return (level_ - 1) % 8; }
 };

@@ -1,10 +1,10 @@
 #include "piece.h"
 
-void Piece::draw(Graphics& graphics, int x, int y) const {
+void Piece::draw(Graphics& graphics, int x, int y, int texture) const {
   for (int iy = 0; iy < 4; ++iy) {
     for (int ix = 0; ix < 4; ++ix) {
       if (block(ix, iy)) {
-        blocks_.draw(graphics, color(), x + ix * 8, y + iy * 8);
+        blocks_.draw(graphics, color() + 19 * texture, x + ix * 8, y + iy * 8);
       }
     }
   }

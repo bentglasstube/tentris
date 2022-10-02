@@ -12,7 +12,7 @@ class Piece {
 
     Piece(int n) : Piece(static_cast<Shape>(n)) {}
     Piece(Piece::Shape shape) : blocks_("blocks.png", 19, 8, 8), shape_(shape), rotation_(0) {}
-    void draw(Graphics& graphics, int x, int y) const;
+    void draw(Graphics& graphics, int x, int y, int texture = 0) const;
 
     void rotate_left() { rotation_ = (rotation_ + 3) % 4; }
     void rotate_right() { rotation_ = (rotation_ + 1) % 4; }
