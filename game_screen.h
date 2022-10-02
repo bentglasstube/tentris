@@ -50,6 +50,7 @@ class GameScreen : public Screen {
     int lines_, level_, score_, soft_drop_;
     int scan_timer_, scanner_, scanner_drop_timer_;
     int auto_shift_;
+    bool tspin_;
 
     std::vector<Piece::Shape> bag_;
 

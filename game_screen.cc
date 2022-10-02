@@ -21,7 +21,6 @@ GameScreen::GameScreen() :
 }
 
 bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) {
-
   if (state_ == State::GameOver) {
     if (input.key_pressed(Input::Button::Start)) return false;
     return true;
@@ -68,6 +67,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
   current_.drop -= elapsed * (input.key_held(Input::Button::Down) ? 20 : 1);
 
   if (input.key_pressed(Input::Button::Up)) {
+    tspin_ = false;
     int distance = 0;
     while (!overlap(current_)) {
       --current_.y;
@@ -81,6 +81,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
   while (current_.drop < 0) {
     if (test_move(0, -1)) {
+      tspin_ = false;
       current_.drop += drop_time();
       if (input.key_held(Input::Button::Down)) ++soft_drop_;
     } else {
@@ -237,6 +238,51 @@ void GameScreen::lock_piece(Audio& audio) {
     }
   }
 
+  if (current_.piece.shape() == Piece::Shape::T && tspin_) {
+    std::cerr << "Last move on T was rotation, checking for t-spin" << std::endl;
+
+    int back = 0;
+    int front = 0;
+
+    auto check = [&](int x, int y) {
+      std::cerr << "Checking " << current_.x + x << ", " << current_.y - y << std::endl;
+      return filled(current_.x + x, current_.y - y) ? 1 : 0;
+    };
+
+    switch (current_.piece.rotation()) {
+      case 0: // front up
+        back = check(0, 2) + check(2, 2);
+        front = check(0, 0) + check(2, 0);
+        break;
+      case 1: // front right
+        back = check(0, 0) + check(0, 2);
+        front = check(2, 0) + check(2, 2);
+        break;
+      case 2: // front down
+        back = check(0, 0) + check(2, 0);
+        front = check(0, 2) + check(2, 2);
+        break;
+      case 3: // front left
+        back = check(2, 0) + check(2, 2);
+        front = check(0, 0) + check(0, 2);
+        break;
+    }
+
+    std::cerr << "T-spin check: " << front << " front, " << back << " back" << std::endl;
+
+    if (front == 2 && back > 0) {
+      // full t-spin
+      std::cerr << "Full T-spin" << std::endl;
+      audio.play_sample("fullspin.wav");
+      score_ += 400 * level_;
+    } else if (front == 1 && back == 2) {
+      // mini t-spin
+      std::cerr << "Mini T-spin" << std::endl;
+      audio.play_sample("spin.wav");
+      score_ += 100 * level_;
+    }
+  }
+
   audio.play_sample("lock.wav");
   score_ += soft_drop_;
   spawn_piece();
@@ -256,6 +302,9 @@ bool GameScreen::test_move(int x, int y) {
 bool GameScreen::rotate_left() {
   if (current_.piece.shape() == Piece::Shape::O) return true;
 
+  bool old = tspin_;
+  tspin_ = true;
+
   current_.piece.rotate_left();
   if (test_move(0, 0)) return true;
 
@@ -324,12 +373,16 @@ bool GameScreen::rotate_left() {
   }
 
   current_.piece.rotate_right();
+  tspin_ = old;
   return false;
 }
 
 bool GameScreen::rotate_right() {
   if (current_.piece.shape() == Piece::Shape::O) return true;
 
+  bool old = tspin_;
+  tspin_ = true;
+
   current_.piece.rotate_right();
   if (test_move(0, 0)) return true;
 
@@ -399,6 +452,7 @@ bool GameScreen::rotate_right() {
   }
 
   current_.piece.rotate_left();
+  tspin_ = old;
   return false;
 }
 
