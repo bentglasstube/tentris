@@ -19,7 +19,7 @@ GameScreen::GameScreen() :
   spawn_piece();
 }
 
-bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
+bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) {
   if (input.key_pressed(Input::Button::A)) rotate_left();
   if (input.key_pressed(Input::Button::X)) rotate_left();
   if (input.key_pressed(Input::Button::B)) rotate_right();
@@ -37,8 +37,7 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
       ++distance;
     }
     ++current_.y;
-    lock_piece();
-    spawn_piece();
+    lock_piece(audio);
 
     score_ += 2 * distance;
   }
@@ -49,17 +48,18 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
       if (input.key_held(Input::Button::Down)) ++soft_drop_;
     } else {
       score_ += soft_drop_;
-
-      lock_piece();
-      spawn_piece();
-
+      lock_piece(audio);
       // if a freshly spawned piece overlaps the board, you lose
-      if (overlap(current_)) return false;
+      if (overlap(current_)) {
+        audio.play_sample("dead.wav");
+        return false;
+      }
     }
   }
 
   scan_timer_ -= elapsed;
   if (scan_timer_ < 0) {
+    audio.play_sample("laser.wav");
     scan_timer_ += 10000;
     scanner_ = 161;
     scanner_drop_timer_ = 0;
@@ -87,9 +87,11 @@ bool GameScreen::update(const Input& input, Audio&, unsigned int elapsed) {
       // If no lines are found, you lose
       if (lines == 0) {
         std::cerr << "No lines found during scan, game over." << std::endl;
+        audio.play_sample("dead.wav");
         return false;
       }
 
+      audio.play_sample("clear.wav");
       std::cerr << "Got " << lines << " lines." << std::endl;
       std::cerr << "Score " << level_ << " * 100 * 2 ^ " << (lines - 1) << " = ";
       std::cerr << level_ * 100 * std::pow(2, lines - 1) << std::endl;
@@ -191,7 +193,7 @@ void GameScreen::fill_bag() {
   shuffle(bag_.begin(), bag_.end(), rng_);
 }
 
-void GameScreen::lock_piece() {
+void GameScreen::lock_piece(Audio& audio) {
   for (int y = 0; y < 4; ++y) {
     for (int x = 0; x < 4; ++x) {
       if (current_.piece.block(x, y)) {
@@ -199,6 +201,10 @@ void GameScreen::lock_piece() {
       }
     }
   }
+
+  audio.play_sample("lock.wav");
+
+  spawn_piece();
 }
 
 bool GameScreen::test_move(int x, int y) {

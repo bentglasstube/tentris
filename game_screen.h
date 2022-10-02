@@ -53,7 +53,7 @@ class GameScreen : public Screen {
 
     void spawn_piece();
     void fill_bag();
-    void lock_piece();
+    void lock_piece(Audio& audio);
 
     bool rotate_left();
     bool rotate_right();
