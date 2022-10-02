@@ -21,10 +21,6 @@ GameScreen::GameScreen(Difficulty difficulty) :
   board_.fill(0);
   fill_bag();
   spawn_piece();
-
-  for (int x = 2; x < 10; ++x) fill(x, 0, 18);
-  fill(0, 0, 18);
-  fill(2, 2, 18);
 }
 
 bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) {
