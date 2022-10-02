@@ -23,7 +23,7 @@ class TitleScreen : public Screen {
     bool update(const Input&, Audio&, unsigned int) override;
     void draw(Graphics&) const override;
 
-    std::string get_music_track() const override { return "title.ogg"; }
+    std::string get_music_track() const override { return "filo.ogg"; }
     Screen* next_screen() const override;
 
   private:

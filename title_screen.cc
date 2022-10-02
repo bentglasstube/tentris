@@ -42,9 +42,9 @@ bool TitleScreen::update(const Input& input, Audio&, unsigned int elapsed) {
     if (input.key_pressed(Input::Button::A)) return false;
     if (input.key_pressed(Input::Button::X)) return false;
   } else {
-    if (input.key_pressed(Input::Button::Left)) music_ = (music_ + 2) % 3;
-    if (input.key_pressed(Input::Button::Right)) music_ = (music_ + 1) % 3;
-    if (input.key_pressed(Input::Button::Select)) music_ = (music_ + 1) % 3;
+    if (input.key_pressed(Input::Button::Left)) music_ = (music_ + 3) % 4;
+    if (input.key_pressed(Input::Button::Right)) music_ = (music_ + 1) % 4;
+    if (input.key_pressed(Input::Button::Select)) music_ = (music_ + 1) % 4;
   }
 
   return true;
@@ -82,9 +82,10 @@ Screen* TitleScreen::next_screen() const {
 
 std::string TitleScreen::get_music_title() const {
   switch (music_) {
-    case 0: return "Folk";
-    case 1: return "Funk";
-    case 2: return "Filo";
+    case 0: return "FOLK";
+    case 1: return "FUNK";
+    case 2: return "FILO";
+    case 3: return "FEAR";
     default: return "????";
   }
 }

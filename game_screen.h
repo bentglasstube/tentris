@@ -19,7 +19,7 @@ class GameScreen : public Screen {
   public:
 
     enum class Difficulty { Rusty, Trusty, Lusty };
-    enum class Music { Folk, Funk, Filo };
+    enum class Music { Folk, Funk, Filo, Fear };
 
     GameScreen(Difficulty difficulty, Music music);
 

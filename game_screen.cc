@@ -235,9 +235,10 @@ void GameScreen::draw(Graphics& graphics) const {
 
 std::string GameScreen::get_music_track() const {
   switch (music_) {
-    case Music::Folk: return "theme_a.ogg";
+    case Music::Folk: return "folk.ogg";
     case Music::Funk: return "funk.ogg";
-    case Music::Filo: return "title.ogg";
+    case Music::Filo: return "filo.ogg";
+    case Music::Fear: return "fear.ogg";
     default:          return "";
   }
 }
