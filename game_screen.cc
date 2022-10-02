@@ -67,15 +67,9 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       current_.drop += drop_time();
       if (input.key_held(Input::Button::Down)) ++soft_drop_;
     } else {
-      score_ += soft_drop_;
       lock_piece(audio);
       // if a freshly spawned piece overlaps the board, you lose
-      if (overlap(current_)) {
-        audio.play_sample("dead.wav");
-        state_ = State::GameOver;
-        audio.stop_music();
-        return true;
-      }
+      if (overlap(current_)) game_over(audio);
     }
   }
 
@@ -111,20 +105,17 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       // If no lines are found, you lose
       if (lines == 0) {
         std::cerr << "No lines found during scan, game over." << std::endl;
-        audio.play_sample("dead.wav");
-        state_ = State::GameOver;
-        audio.stop_music();
-        return true;
+        game_over(audio);
+      } else {
+        audio.play_sample(lines > 3 ? "bigclear.wav" : "clear.wav");
+        std::cerr << "Got " << lines << " lines." << std::endl;
+        std::cerr << "Score " << level_ << " * 100 * 2 ^ " << (lines - 1) << " = ";
+        std::cerr << level_ * 100 * std::pow(2, lines - 1) << std::endl;
+
+        score_ += level_ * 100 * std::pow(2, lines - 1);
+        lines_ += lines;
+        level_ = (lines_ / 10) + 1;
       }
-
-      audio.play_sample("clear.wav");
-      std::cerr << "Got " << lines << " lines." << std::endl;
-      std::cerr << "Score " << level_ << " * 100 * 2 ^ " << (lines - 1) << " = ";
-      std::cerr << level_ * 100 * std::pow(2, lines - 1) << std::endl;
-
-      score_ += level_ * 100 * std::pow(2, lines - 1);
-      lines_ += lines;
-      level_ = (lines_ / 10) + 1;
     }
   }
 
@@ -233,7 +224,7 @@ void GameScreen::lock_piece(Audio& audio) {
   }
 
   audio.play_sample("lock.wav");
-
+  score_ += soft_drop_;
   spawn_piece();
 }
 
@@ -420,4 +411,10 @@ void GameScreen::drop_lines(int y) {
       fill(ix, iy, value(ix, iy + 1));
     }
   }
+}
+
+void GameScreen::game_over(Audio& audio) {
+  audio.play_sample("dead.wav");
+  audio.stop_music();
+  state_ = State::GameOver;
 }
