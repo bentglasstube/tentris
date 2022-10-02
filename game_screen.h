@@ -11,6 +11,7 @@
 #include "text.h"
 
 #include "piece.h"
+#include "title_screen.h"
 
 class GameScreen : public Screen {
   public:
@@ -21,6 +22,7 @@ class GameScreen : public Screen {
     void draw(Graphics& graphics) const override;
 
     std::string get_music_track() const { return "theme_a.ogg"; }
+    Screen* next_screen() const { return new TitleScreen; }
 
   private:
 

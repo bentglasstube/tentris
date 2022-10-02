@@ -23,6 +23,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
   if (state_ == State::GameOver) {
     if (input.key_pressed(Input::Button::Start)) return false;
+    return true;
   }
 
   if (state_ == State::Paused) {
@@ -100,6 +101,8 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         }
       }
 
+      scanner_ = -1;
+
       // If no lines are found, you lose
       if (lines == 0) {
         std::cerr << "No lines found during scan, game over." << std::endl;
@@ -116,8 +119,6 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       score_ += level_ * 100 * std::pow(2, lines - 1);
       lines_ += lines;
       level_ = (lines_ / 10) + 1;
-
-      scanner_ = -1;
     }
   }
 
