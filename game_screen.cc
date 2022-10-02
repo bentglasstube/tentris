@@ -133,36 +133,42 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
 void GameScreen::draw(Graphics& graphics) const {
   background_.draw(graphics);
-  current_.piece.draw(graphics, 40 + 8 * current_.x, 192 - 8 * current_.y);
 
-  const Piece next = bag_.back();
-  switch (next.shape()) {
-    case Piece::Shape::I:
-      next.draw(graphics, 176, 60);
-      break;
+  if (state_ == State::Paused) {
+    text_.draw(graphics, "PAUSED", 80, 112, Text::Alignment::Center);
+  } else {
+    current_.piece.draw(graphics, 40 + 8 * current_.x, 192 - 8 * current_.y);
 
-    case Piece::Shape::O:
-      next.draw(graphics, 176, 64);
-      break;
+    const Piece next = bag_.back();
+    switch (next.shape()) {
+      case Piece::Shape::I:
+        next.draw(graphics, 176, 60);
+        break;
 
-    default:
-      next.draw(graphics, 180, 64);
-      break;
-  }
+      case Piece::Shape::O:
+        next.draw(graphics, 176, 64);
+        break;
 
-  for (int y = 0; y < 20; ++y) {
-    for (int x = 0; x < 10; ++x) {
-      if (filled(x, y)) {
-        blocks_.draw(graphics, board_[y * 10 + x], 40 + 8 * x, 192 - 8 * y);
+      default:
+        next.draw(graphics, 180, 64);
+        break;
+    }
+
+    for (int y = 0; y < 20; ++y) {
+      for (int x = 0; x < 10; ++x) {
+        if (filled(x, y)) {
+          blocks_.draw(graphics, board_[y * 10 + x], 40 + 8 * x, 192 - 8 * y);
+        }
       }
     }
-  }
 
-  if (scanner_ >= 0) {
-    laser_.draw(graphics, 40, 196 - scanner_);
-  }
+    if (scanner_ >= 0) {
+      laser_.draw(graphics, 40, 196 - scanner_);
+    }
 
-  top_.draw(graphics, 32, 24);
+    if (state_ == State::GameOver) text_.draw(graphics, "GAME OVER", 80, 112, Text::Alignment::Center);
+    top_.draw(graphics, 32, 24);
+  }
 
   text_.draw(graphics, "NEXT", 176, 32);
   text_.draw(graphics, "TIMER", 160, 112);
