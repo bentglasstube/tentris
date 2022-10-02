@@ -7,6 +7,7 @@
 #include "text.h"
 
 #include "piece.h"
+#include "stats.h"
 
 class TitleScreen : public Screen {
   public:
@@ -29,10 +30,9 @@ class TitleScreen : public Screen {
 
     Backdrop background_;
     Text text_;
-    std::vector<MovingPiece> pieces_;
-
-    int spawn_timer_ = 500;
-
+    Stats stats_;
     std::mt19937 rng_;
+    std::vector<MovingPiece> pieces_;
+    int spawn_timer_, choice_;
 
 };

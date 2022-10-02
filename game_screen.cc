@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-GameScreen::GameScreen() :
+GameScreen::GameScreen(int difficulty) :
   background_("background.png"),
   blocks_("blocks.png", 19, 8, 8),
   digits_("digits.png", 10, 12, 21),
@@ -13,6 +13,7 @@ GameScreen::GameScreen() :
   state_(State::Playing),
   stats_("content/stats.txt"),
   rng_(Util::random_seed()),
+  difficulty_(difficulty),
   duration_(0),
   lines_(0), level_(1), score_(0),
   scan_timer_(10000), scanner_(-1)
@@ -66,6 +67,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
     auto_shift_ = 0;
   }
 
+  duration_ += elapsed;
   current_.drop -= elapsed * (input.key_held(Input::Button::Down) ? 20 : 1);
 
   if (input.key_pressed(Input::Button::Up)) {
@@ -130,7 +132,6 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       int lines = 0;
       for (int y = 20; y >= 0; --y) {
         if (value(0, y) == 2) {
-          std::cerr << "Full line on row " << y << std::endl;
           drop_lines(y);
           ++lines;
         }
@@ -140,14 +141,10 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
 
       // If no lines are found, add a garbage line
       if (lines == 0) {
-        std::cerr << "No lines found during scan, game over." << std::endl;
         audio.play_sample("warning.wav");
         add_trash_line();
       } else {
         audio.play_sample(lines > 3 ? "bigclear.wav" : "clear.wav");
-        std::cerr << "Got " << lines << " lines." << std::endl;
-        std::cerr << "Score " << level_ << " * 100 * 2 ^ " << (lines - 1) << " = ";
-        std::cerr << level_ * 100 * std::pow(2, lines - 1) << std::endl;
 
         score_ += level_ * 100 * std::pow(2, lines - 1);
         lines_ += lines;
@@ -265,7 +262,6 @@ void GameScreen::fill(int x, int y, int value) {
 }
 
 void GameScreen::spawn_piece() {
-  std::cerr << "Spawning next piece." << std::endl;
   current_ = { 0, 3, 21, bag_.back() };
   bag_.pop_back();
   if (bag_.empty()) fill_bag();
@@ -273,7 +269,6 @@ void GameScreen::spawn_piece() {
 }
 
 void GameScreen::fill_bag() {
-  std::cerr << "Filling bag." << std::endl;
   for (int i = 0; i < 7; ++i) {
     bag_.push_back(static_cast<Piece::Shape>(i));
   }
@@ -290,13 +285,10 @@ void GameScreen::lock_piece(Audio& audio) {
   }
 
   if (current_.piece.shape() == Piece::Shape::T && tspin_) {
-    std::cerr << "Last move on T was rotation, checking for t-spin" << std::endl;
-
     int back = 0;
     int front = 0;
 
     auto check = [&](int x, int y) {
-      std::cerr << "Checking " << current_.x + x << ", " << current_.y - y << std::endl;
       return filled(current_.x + x, current_.y - y) ? 1 : 0;
     };
 
@@ -318,8 +310,6 @@ void GameScreen::lock_piece(Audio& audio) {
         front = check(0, 0) + check(0, 2);
         break;
     }
-
-    std::cerr << "T-spin check: " << front << " front, " << back << " back" << std::endl;
 
     if (front == 2 && back > 0) {
       // full t-spin

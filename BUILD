@@ -18,12 +18,14 @@ cc_binary(
 cc_library(
   name = "screens",
   srcs = [
-    "title_screen.cc",
     "game_screen.cc",
+    "stats_screen.cc",
+    "title_screen.cc",
   ],
   hdrs = [
-    "title_screen.h",
     "game_screen.h",
+    "stats_screen.h",
+    "title_screen.h",
   ],
   deps = [
     "@libgam//:backdrop",

@@ -18,7 +18,7 @@
 class GameScreen : public Screen {
   public:
 
-    GameScreen();
+    GameScreen(int difficulty);
 
     bool update(const Input&, Audio&, unsigned int) override;
     void draw(Graphics& graphics) const override;
@@ -51,6 +51,7 @@ class GameScreen : public Screen {
     std::mt19937 rng_;
     std::array<int, 220> board_;
     std::vector<Floater> floaters_;
+    int difficulty_;
     uint64_t duration_;
     int lines_, level_, score_, soft_drop_;
     int scan_timer_, scanner_, scanner_drop_timer_;
