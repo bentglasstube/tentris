@@ -10,6 +10,7 @@ GameScreen::GameScreen() :
   laser_("scanner.png", 0, 0, 80, 4),
   top_("top.png", 0, 0, 96, 16),
   text_("text.png"),
+  state_(State::Playing),
   rng_(Util::random_seed()),
   lines_(0),level_(1), score_(0),
   scan_timer_(10000), scanner_(-1)
