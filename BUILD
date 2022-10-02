@@ -34,6 +34,7 @@ cc_library(
     "@libgam//:util",
     ":floater",
     ":piece",
+    ":stats",
   ],
 )
 
@@ -55,4 +56,10 @@ cc_library(
     "@libgam//:graphics",
     "@libgam//:spritemap",
   ],
+)
+
+cc_library(
+  name = "stats",
+  srcs = ["stats.cc"],
+  hdrs = ["stats.h"],
 )

@@ -11,8 +11,10 @@ GameScreen::GameScreen() :
   top_("top.png", 0, 0, 96, 16),
   text_("text.png"),
   state_(State::Playing),
+  stats_("content/stats.txt"),
   rng_(Util::random_seed()),
-  lines_(0),level_(1), score_(0),
+  duration_(0),
+  lines_(0), level_(1), score_(0),
   scan_timer_(10000), scanner_(-1)
 {
   board_.fill(0);
@@ -91,6 +93,10 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         audio.play_sample("dead.wav");
         audio.stop_music();
         state_ = State::GameOver;
+        stats_.set_score(score_);
+        stats_.set_lines(lines_);
+        stats_.set_run_length(duration_);
+        stats_.save("content/stats.txt");
         return true;
       }
     }
@@ -111,6 +117,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       --scanner_;
       if (check_line(scanner_ / 8) && scanner_ % 8 < 7) {
         const int time_left = (scanner_drop_timer_ + drop_time() * (scanner_ % 8)) / 20;
+        stats_.set_edge(time_left);
         std::cerr << "Edged with " << time_left << "ms to go." << std::endl;
         audio.play_sample("edge.wav");
         score_ += level_ * 1000 / time_left;
@@ -146,6 +153,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         lines_ += lines;
         level_ = (lines_ / 10) + 1;
 
+        stats_.set_clear(lines);
         floaters_.emplace_back(lines > 3 ? 3 : lines - 1, 58, 193);
       }
 

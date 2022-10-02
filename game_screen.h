@@ -12,6 +12,7 @@
 
 #include "floater.h"
 #include "piece.h"
+#include "stats.h"
 #include "title_screen.h"
 
 class GameScreen : public Screen {
@@ -43,12 +44,14 @@ class GameScreen : public Screen {
     SpriteMap blocks_, digits_;
     Sprite laser_, top_;
     Text text_;
-    std::vector<Floater> floaters_;
 
     State state_;
+    Stats stats_;
     PieceData current_;
     std::mt19937 rng_;
     std::array<int, 220> board_;
+    std::vector<Floater> floaters_;
+    uint64_t duration_;
     int lines_, level_, score_, soft_drop_;
     int scan_timer_, scanner_, scanner_drop_timer_;
     int auto_shift_;

@@ -11,3 +11,4 @@ bazel-*
 /*-web-*/
 *output/
 todo
+content/stats.txt
