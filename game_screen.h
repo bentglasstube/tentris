@@ -84,4 +84,5 @@ class GameScreen : public Screen {
     int block_texture() const { return (level_ - 1) % 8; }
     void add_points(int points);
     void game_over(Audio& audio);
+    int hard_drop(Audio& audio);
 };

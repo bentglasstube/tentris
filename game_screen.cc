@@ -71,15 +71,11 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
   current_.drop -= elapsed * (input.key_held(Input::Button::Down) ? 20 : 1);
 
   if (input.key_pressed(Input::Button::Up)) {
-    tspin_ = false;
-    int distance = 0;
-    while (!overlap(current_)) {
-      --current_.y;
-      ++distance;
+    const int dist = hard_drop(audio);
+    if (dist > 0) {
+      tspin_ = false;
+      add_points(2 * dist);
     }
-    ++current_.y;
-    lock_piece(audio);
-    add_points(2 * distance);
   }
 
   while (current_.drop < 0) {
@@ -137,11 +133,7 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
         switch (difficulty_) {
           case Difficulty::Rusty:
             audio.play_sample("warning.wav");
-            while (!overlap(current_)) {
-              --current_.y;
-            }
-            ++current_.y;
-            lock_piece(audio);
+            hard_drop(audio);
             break;
 
           case Difficulty::Trusty:
@@ -566,4 +558,15 @@ void GameScreen::game_over(Audio& audio) {
   stats_.set_lines(lines_);
   stats_.set_run_length(duration_);
   stats_.save("content/stats.txt");
+}
+
+int GameScreen::hard_drop(Audio& audio) {
+  int distance = 0;
+  while (!overlap(current_)) {
+    --current_.y;
+    ++distance;
+  }
+  ++current_.y;
+  lock_piece(audio);
+  return distance;
 }
