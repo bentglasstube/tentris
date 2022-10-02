@@ -20,6 +20,8 @@ class GameScreen : public Screen {
     bool update(const Input&, Audio&, unsigned int) override;
     void draw(Graphics& graphics) const override;
 
+    std::string get_music_track() const { return "theme_a.ogg"; }
+
   private:
 
     static constexpr float kMinDropTime = 64.f;
