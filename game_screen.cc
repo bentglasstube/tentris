@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-GameScreen::GameScreen(Difficulty difficulty) :
+GameScreen::GameScreen(Difficulty difficulty, Music music) :
   background_("background.png"),
   blocks_("blocks.png", 19, 8, 8),
   digits_("digits.png", 10, 12, 21),
@@ -13,6 +13,7 @@ GameScreen::GameScreen(Difficulty difficulty) :
   state_(State::Playing),
   stats_("content/stats.txt"),
   difficulty_(difficulty),
+  music_(music),
   rng_(Util::random_seed()),
   duration_(0),
   lines_(0), level_(1), score_(0),
@@ -225,6 +226,15 @@ void GameScreen::draw(Graphics& graphics) const {
   text_.draw(graphics, std::to_string(lines_), 224, 128, Text::Alignment::Right);
   text_.draw(graphics, std::to_string(level_), 224, 144, Text::Alignment::Right);
   text_.draw(graphics, std::to_string(score_), 224, 192, Text::Alignment::Right);
+}
+
+std::string GameScreen::get_music_track() const {
+  switch (music_) {
+    case Music::Folk: return "theme_a.ogg";
+    case Music::Funk: return "funk.ogg";
+    case Music::Filo: return "title.ogg";
+    default:          return "";
+  }
 }
 
 bool GameScreen::overlap(const PieceData& piece) const {

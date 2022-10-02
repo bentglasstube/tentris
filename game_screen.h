@@ -19,13 +19,14 @@ class GameScreen : public Screen {
   public:
 
     enum class Difficulty { Rusty, Trusty, Lusty };
+    enum class Music { Folk, Funk, Filo };
 
-    GameScreen(Difficulty difficulty);
+    GameScreen(Difficulty difficulty, Music music);
 
     bool update(const Input&, Audio&, unsigned int) override;
     void draw(Graphics& graphics) const override;
 
-    std::string get_music_track() const override { return "theme_a.ogg"; }
+    std::string get_music_track() const override;
     Screen* next_screen() const override { return new TitleScreen; }
 
   private:
@@ -50,6 +51,7 @@ class GameScreen : public Screen {
     State state_;
     Stats stats_;
     Difficulty difficulty_;
+    Music music_;
     PieceData current_;
     std::mt19937 rng_;
     std::array<int, 220> board_;

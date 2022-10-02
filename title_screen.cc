@@ -11,7 +11,7 @@ TitleScreen::TitleScreen() :
   background_("title.png"), text_("text.png"),
   stats_("content/stats.txt"),
   rng_(Util::random_seed()),
-  spawn_timer_(500), choice_(1)
+  spawn_timer_(500), choice_(1), music_(0)
 {}
 
 bool TitleScreen::update(const Input& input, Audio&, unsigned int elapsed) {
@@ -34,12 +34,18 @@ bool TitleScreen::update(const Input& input, Audio&, unsigned int elapsed) {
         std::uniform_int_distribution<int>(10, 24)(rng_) * 8);
   }
 
-  if (input.key_pressed(Input::Button::Up)) choice_ = (choice_ + 3) % 4;
-  if (input.key_pressed(Input::Button::Down)) choice_ = (choice_ + 1) % 4;
+  if (input.key_pressed(Input::Button::Up)) choice_ = (choice_ + 4) % 5;
+  if (input.key_pressed(Input::Button::Down)) choice_ = (choice_ + 1) % 5;
 
-  if (input.key_pressed(Input::Button::Start)) return false;
-  if (input.key_pressed(Input::Button::A)) return false;
-  if (input.key_pressed(Input::Button::X)) return false;
+  if (choice_ != 4) {
+    if (input.key_pressed(Input::Button::Start)) return false;
+    if (input.key_pressed(Input::Button::A)) return false;
+    if (input.key_pressed(Input::Button::X)) return false;
+  } else {
+    if (input.key_pressed(Input::Button::Left)) music_ = (music_ + 2) % 3;
+    if (input.key_pressed(Input::Button::Right)) music_ = (music_ + 1) % 3;
+    if (input.key_pressed(Input::Button::Select)) music_ = (music_ + 1) % 3;
+  }
 
   return true;
 }
@@ -52,19 +58,33 @@ void TitleScreen::draw(Graphics& graphics) const {
   }
 
   const int center = graphics.width() / 2;
-  const int pointer = 108 + 16 * choice_ + (choice_ == 3 ? 16 : 0);
+  const int pointer = 108 + 16 * choice_ + (choice_ >= 3 ? 16 : 0);
+
+  std::string song = get_music_title();
 
   text_.draw(graphics, "Rusty", center, 108, Text::Alignment::Center);
   text_.draw(graphics, "Trusty", center, 124, Text::Alignment::Center);
   text_.draw(graphics, "Lusty", center, 140, Text::Alignment::Center);
   text_.draw(graphics, "Statistics", center, 172, Text::Alignment::Center);
+  text_.draw(graphics, "Music: " + song, center, 188, Text::Alignment::Center);
   text_.draw(graphics, ">              <", center, pointer, Text::Alignment::Center);
 }
 
 Screen* TitleScreen::next_screen() const {
   if (choice_ < 3) {
-    return new GameScreen(static_cast<GameScreen::Difficulty>(choice_));
+    return new GameScreen(
+        static_cast<GameScreen::Difficulty>(choice_),
+        static_cast<GameScreen::Music>(music_));
   } else {
     return new StatsScreen();
+  }
+}
+
+std::string TitleScreen::get_music_title() const {
+  switch (music_) {
+    case 0: return "Folk";
+    case 1: return "Funk";
+    case 2: return "Filo";
+    default: return "????";
   }
 }

@@ -33,6 +33,8 @@ class TitleScreen : public Screen {
     Stats stats_;
     std::mt19937 rng_;
     std::vector<MovingPiece> pieces_;
-    int spawn_timer_, choice_;
+    int spawn_timer_, choice_, music_;
+
+    std::string get_music_title() const;
 
 };
