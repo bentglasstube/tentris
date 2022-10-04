@@ -42,3 +42,7 @@ uint64_t Stats::get(const std::string& key, uint64_t def) const {
   const auto& it = data_.find(key);
   return it == data_.end() ? def : it->second;
 }
+
+uint64_t Stats::get(const std::string& key, uint64_t min, uint64_t max, uint64_t def) const {
+  return std::clamp(get(key, def), min, max);
+}

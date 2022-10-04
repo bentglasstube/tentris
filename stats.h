@@ -27,8 +27,8 @@ class Stats {
     void set_music(uint64_t value)       { set("music",         value, Always); }
     void set_difficulty(uint64_t value)  { set("difficulty",    value, Always); }
 
-    Difficulty difficulty() const { return static_cast<Difficulty>(std::clamp(get("difficulty", 1), 0ul, 2ul)); }
-    Music music() const { return static_cast<Music>(std::clamp(get("music"), 0ul, 3ul)); }
+    Difficulty difficulty() const { return static_cast<Difficulty>(get("difficulty", 0, 2, 1)); }
+    Music music() const { return static_cast<Music>(get("music", 0, 3)); }
 
     void save(const std::string& filename) const;
 
@@ -45,4 +45,5 @@ class Stats {
     void set(const std::string& key, uint64_t value) { set(key, value, Maximize); }
     void set(const std::string& key, uint64_t value, Comparator comp);
     uint64_t get(const std::string& key, uint64_t def = 0) const;
+    uint64_t get(const std::string& key, uint64_t min, uint64_t max, uint64_t def = 0) const;
 };
