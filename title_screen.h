@@ -12,7 +12,8 @@
 class TitleScreen : public Screen {
   public:
 
-    TitleScreen();
+    TitleScreen(Stats stats);
+    TitleScreen() : TitleScreen({"content/stats.txt"}) {}
 
     struct MovingPiece {
       Piece p;

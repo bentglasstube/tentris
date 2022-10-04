@@ -11,12 +11,12 @@
 class StatsScreen : public Screen {
   public:
 
-    StatsScreen() : background_("title.png"), text_("text.png"), stats_("content/stats.txt") {}
+    StatsScreen(Stats stats) : background_("title.png"), text_("text.png"), stats_(stats) {}
 
     bool update(const Input& input, Audio&, unsigned int) override;
     void draw(Graphics& graphics) const override;
     std::string get_music_track() const override { return "title.ogg"; }
-    Screen* next_screen() const override { return new TitleScreen(); }
+    Screen* next_screen() const override { return new TitleScreen(stats_); }
 
   private:
 

@@ -25,11 +25,7 @@ void Stats::save(const std::string& filename) const {
   }
 }
 
-void Stats::set(const std::string& key, uint64_t value) {
-  set(key, value, [](uint64_t a, uint64_t b) { return a > b; });
-}
-
-void Stats::set(const std::string& key, uint64_t value, std::function<bool(uint64_t, uint64_t)> comp) {
+void Stats::set(const std::string& key, uint64_t value, Comparator comp) {
   auto it = data_.find(key);
   if (it == data_.end()) {
     std::cerr << "Saving " << value << " for '" << key << "'" << std::endl;
@@ -42,7 +38,7 @@ void Stats::set(const std::string& key, uint64_t value, std::function<bool(uint6
   }
 }
 
-uint64_t Stats::get(const std::string& key) const {
+uint64_t Stats::get(const std::string& key, uint64_t def) const {
   const auto& it = data_.find(key);
-  return it == data_.end() ? 0 : it->second;
+  return it == data_.end() ? def : it->second;
 }

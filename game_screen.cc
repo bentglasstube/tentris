@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-GameScreen::GameScreen(Difficulty difficulty, Music music) :
+GameScreen::GameScreen(Stats stats) :
   background_("background.png"),
   blocks_("blocks.png", 19, 8, 8),
   digits_("digits.png", 10, 12, 21),
@@ -11,9 +11,9 @@ GameScreen::GameScreen(Difficulty difficulty, Music music) :
   top_("top.png", 0, 0, 96, 16),
   text_("text.png"),
   state_(State::Playing),
-  stats_("content/stats.txt"),
-  difficulty_(difficulty),
-  music_(music),
+  stats_(stats),
+  difficulty_(stats_.difficulty()),
+  music_(stats_.music()),
   rng_(Util::random_seed()),
   duration_(0),
   lines_(0), level_(1), score_(0),
@@ -152,17 +152,17 @@ bool GameScreen::update(const Input& input, Audio& audio, unsigned int elapsed) 
       // If no lines are found, there is a penalty
       if (lines == 0) {
         switch (difficulty_) {
-          case Difficulty::Rusty:
+          case Stats::Difficulty::Rusty:
             audio.play_sample("warning.wav");
             hard_drop(audio);
             break;
 
-          case Difficulty::Trusty:
+          case Stats::Difficulty::Trusty:
             audio.play_sample("warning.wav");
             add_trash_line();
             break;
 
-          case Difficulty::Lusty:
+          case Stats::Difficulty::Lusty:
             game_over(audio);
             return true;
         }
@@ -253,11 +253,11 @@ void GameScreen::draw(Graphics& graphics) const {
 
 std::string GameScreen::get_music_track() const {
   switch (music_) {
-    case Music::Folk: return "folk.ogg";
-    case Music::Funk: return "funk.ogg";
-    case Music::Filo: return "filo.ogg";
-    case Music::Fear: return "fear.ogg";
-    default:          return "";
+    case Stats::Music::Folk: return "folk.ogg";
+    case Stats::Music::Funk: return "funk.ogg";
+    case Stats::Music::Filo: return "filo.ogg";
+    case Stats::Music::Fear: return "fear.ogg";
+    default:                 return "";
   }
 }
 

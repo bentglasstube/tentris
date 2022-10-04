@@ -7,11 +7,11 @@
 #include "game_screen.h"
 #include "stats_screen.h"
 
-TitleScreen::TitleScreen() :
+TitleScreen::TitleScreen(Stats stats) :
   background_("title.png"), text_("text.png"),
-  stats_("content/stats.txt"),
-  difficulty_({"RUSTY", "TRUSTY", "LUSTY"}, 1),
-  music_({"FOLK", "FUNK", "FILO", "FEAR"}, 0),
+  stats_(stats),
+  difficulty_({"RUSTY", "TRUSTY", "LUSTY"}, static_cast<int>(stats_.difficulty())),
+  music_({"FOLK", "FUNK", "FILO", "FEAR"}, static_cast<int>(stats_.music())),
   rng_(Util::random_seed()),
   spawn_timer_(500), choice_(0)
 {}
@@ -49,6 +49,9 @@ bool TitleScreen::update(const Input& input, Audio&, unsigned int elapsed) {
     if (choice_ == 1) music_.next();
   }
 
+  stats_.set_music(music_.choice());
+  stats_.set_difficulty(difficulty_.choice());
+
   if (input.key_pressed(Input::Button::Start)) return false;
   if (input.key_pressed(Input::Button::A)) return false;
   if (input.key_pressed(Input::Button::X)) return false;
@@ -74,10 +77,8 @@ void TitleScreen::draw(Graphics& graphics) const {
 
 Screen* TitleScreen::next_screen() const {
   if (choice_ == 2) {
-    return new StatsScreen();
+    return new StatsScreen(stats_);
   } else {
-    return new GameScreen(
-        static_cast<GameScreen::Difficulty>(difficulty_.choice()),
-        static_cast<GameScreen::Music>(music_.choice()));
+    return new GameScreen(stats_);
   }
 }
